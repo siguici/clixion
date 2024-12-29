@@ -146,7 +146,9 @@ export type Definition = {
 
 export abstract class Program<
   T extends Definition,
-  U extends Required<Omit<T, 'it' | 'yes' | 'no'>>
+  U extends Required<Omit<T, 'it' | 'yes' | 'no'>> = Required<
+    Omit<T, 'it' | 'yes' | 'no'>
+  >
 > {
   #strict = false;
   #interactive = false;
