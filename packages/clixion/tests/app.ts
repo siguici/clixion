@@ -8,7 +8,7 @@ export class Application extends Program<{
   configure() {
     this.strict()
       .interactive()
-      .command('hello', 'Say hello')
+      .command('hello <name>', 'Say hello')
       .argument('name', {})
       .usage('npm hello <name>')
       .example('npm hello siguici');
