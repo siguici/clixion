@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path, { join, resolve, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import detectPackageManager from 'which-pm-runs';
+import pm from './pm';
 
 export const __filename = getModuleFilename();
 export const __dirname = path.dirname(__filename);
@@ -78,18 +78,6 @@ function fileReplaceContents(
   filePutContents(file, contents);
 }
 
-export function getPackageManager() {
-  return detectPackageManager()?.name || 'npm';
-}
-
-export function pmRunCommand(): string {
-  const pm = getPackageManager();
-  if (pm === 'npm' || pm === 'bun') {
-    return `${pm} run`;
-  }
-  return pm;
-}
-
 export function getPackageJsonPath(dir = __dirname): string {
   return join(dir, 'package.json');
 }
@@ -103,7 +91,7 @@ function packageJsonReplace(
 }
 
 export function replacePackageJsonRunCommand(dir: string) {
-  packageJsonReplace(dir, /npm run/g, pmRunCommand());
+  packageJsonReplace(dir, /npm run/g, pm.runCommand());
 }
 
 const npmPackageNamePattern =

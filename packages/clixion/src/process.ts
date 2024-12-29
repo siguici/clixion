@@ -1,8 +1,7 @@
 import { type ChildProcess, exec } from 'node:child_process';
 import { spawn } from 'cross-spawn';
-import which from 'which';
 import { logError } from './console';
-import { getPackageManager } from './utils';
+import pm from './pm';
 
 export const isPackageManagerInstalled = (packageManager: string) => {
   return new Promise((resolve) => {
@@ -50,7 +49,7 @@ export const $pm = async (
   cwd = process.cwd(),
   env = process.env
 ) => {
-  const packageManager = getPackageManager();
+  const packageManager = pm.name;
   args = Array.isArray(args) ? args : [args];
   if (['exec', 'dlx'].includes(args[0])) {
     switch (packageManager) {
@@ -69,7 +68,7 @@ export const $pm = async (
     }
   }
 
-  const packageManagerPath = await which(packageManager);
+  const packageManagerPath = pm.realname;
   const command = `${packageManagerPath} ${args.join(' ')}`;
 
   return new Promise((resolve, reject) => {
@@ -106,7 +105,7 @@ export const $pmDlx = async (binary: string, cwd: string) => {
 };
 
 export const $pmX = async (executable: string, cwd: string) => {
-  if (['pnpm', 'yarn'].includes(getPackageManager())) {
+  if (pm.in(['pnpm', 'yarn'])) {
     try {
       await $pmExec(executable, cwd);
     } catch (e: any) {

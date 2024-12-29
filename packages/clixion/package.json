@@ -38,6 +38,12 @@
       "require": "./dist/core.cjs",
       "default": "./dist/core.js"
     },
+    "./pm": {
+      "types": "./dist/pm.d.ts",
+      "import": "./dist/pm.js",
+      "require": "./dist/pm.cjs",
+      "default": "./dist/pm.js"
+    },
     "./process": {
       "types": "./dist/process.d.ts",
       "import": "./dist/process.js",
