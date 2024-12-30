@@ -6,7 +6,7 @@ node_modules: package.json packages/clixion/package.json
 	pnpm i -r --frozen-lockfile
 
 pnpm-lock.yaml: package.json packages/clixion/package.json
-	pnpm up -r --frozen-lockfile
+	pnpm up -r
 	pnpm fix
 
 fix: install
