@@ -1,7 +1,18 @@
 import { type ChildProcess, exec as processExec } from 'node:child_process';
+import process from 'node:process';
 import { spawn } from 'cross-spawn';
-import { logError } from './console';
-import pm from './pm';
+
+export type ProcessOptions = {
+  daemon: boolean;
+  cwd: ReturnType<typeof process.cwd>;
+  env: typeof process.env;
+};
+
+export const processOptions: ProcessOptions = {
+  daemon: false,
+  cwd: process.cwd(),
+  env: process.env
+};
 
 export const exec = (command: string) => {
   return new Promise(
@@ -19,24 +30,31 @@ export const exec = (command: string) => {
   );
 };
 
-export function $(cmd: string, args: string[], cwd: string) {
+export function $(command: string, args: string[], options = processOptions) {
   let child: ChildProcess;
 
-  const install = new Promise<boolean>((resolve) => {
+  const process = new Promise<boolean>((resolve, reject) => {
     try {
-      child = spawn(cmd, args, {
-        cwd,
-        stdio: 'ignore'
+      child = spawn(command, args, {
+        cwd: options.cwd,
+        env: options.env,
+        stdio: options.daemon ? 'ignore' : 'inherit',
+        detached: options.daemon
       });
 
       child.on('error', (e) => {
         if (e) {
-          logError(String(e.message || e));
+          reject(e);
+          return;
         }
         resolve(false);
       });
 
       child.on('close', (code) => {
+        if (code !== 0) {
+          reject(new Error(`Command ${command} ${args.join(' ')} failed`));
+          return;
+        }
         resolve(code === 0);
       });
     } catch (e) {
@@ -50,77 +68,5 @@ export function $(cmd: string, args: string[], cwd: string) {
     }
   };
 
-  return { abort, install };
+  return { abort, process };
 }
-
-export const $pm = async (
-  args: string | string[],
-  cwd = process.cwd(),
-  env = process.env
-) => {
-  const packageManager = pm.name;
-  args = Array.isArray(args) ? args : [args];
-  if (['exec', 'dlx'].includes(args[0])) {
-    switch (packageManager) {
-      case 'pnpm':
-      case 'yarn':
-        break;
-      case 'bun':
-      case 'npm': {
-        args = ['x', ...args.slice(1)];
-        break;
-      }
-      default: {
-        args = ['run', ...args.slice(1)];
-        break;
-      }
-    }
-  }
-
-  const packageManagerPath = pm.realname;
-  const command = `${packageManagerPath} ${args.join(' ')}`;
-
-  return new Promise((resolve, reject) => {
-    const child = spawn(packageManagerPath, args, {
-      cwd,
-      stdio: 'inherit',
-      env
-    });
-
-    child.on('close', (code) => {
-      if (code !== 0) {
-        reject({ command });
-        return;
-      }
-      resolve(true);
-    });
-  });
-};
-
-export const $pmInstall = async (cwd: string) => {
-  await $pm('install', cwd);
-};
-
-export const $pmRun = async (script: string, cwd: string) => {
-  await $pm(['run', ...script.split(/\s+/)], cwd);
-};
-
-export const $pmExec = async (command: string, cwd: string) => {
-  await $pm(['exec', ...command.split(/\s+/)], cwd);
-};
-
-export const $pmDlx = async (binary: string, cwd: string) => {
-  await $pm(['dlx', ...binary.split(/\s+/)], cwd);
-};
-
-export const $pmX = async (executable: string, cwd: string) => {
-  if (pm.in(['pnpm', 'yarn'])) {
-    try {
-      await $pmExec(executable, cwd);
-    } catch (e: any) {
-      await $pmDlx(executable, cwd);
-    }
-  } else {
-    await $pmDlx(executable, cwd);
-  }
-};
