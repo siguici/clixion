@@ -1,5 +1,6 @@
 import which from 'which';
 import whichPm from 'which-pm-runs';
+import { exec } from './process';
 
 export class PackageManager {
   constructor(readonly name: string) {}
@@ -40,6 +41,19 @@ export class PackageManager {
 
   isBun(): boolean {
     return this.is('bun');
+  }
+
+  async isInstalled(): Promise<boolean> {
+    try {
+      await this.version();
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  async version(): Promise<string> {
+    return await exec(`${this.realname} --version`);
   }
 }
 

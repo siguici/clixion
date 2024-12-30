@@ -1,15 +1,24 @@
-import { type ChildProcess, exec } from 'node:child_process';
+import { type ChildProcess, exec as processExec } from 'node:child_process';
 import { spawn } from 'cross-spawn';
 import { logError } from './console';
 import pm from './pm';
 
-export const isPackageManagerInstalled = (packageManager: string) => {
-  return new Promise((resolve) => {
-    exec(`${packageManager} --version`, (error, _, stderr) => {
-      resolve(!(error || stderr));
-    });
-  });
+export const exec = (command: string) => {
+  return new Promise(
+    (resolve: (out: string) => void, reject: (err: Error) => void) => {
+      processExec(command, (error, stdout, stderr) => {
+        const err = error || stderr;
+
+        if (err) {
+          reject(err instanceof Error ? err : new Error(err));
+        } else {
+          resolve(stdout);
+        }
+      });
+    }
+  );
 };
+
 export function $(cmd: string, args: string[], cwd: string) {
   let child: ChildProcess;
 
