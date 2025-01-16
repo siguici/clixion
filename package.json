@@ -16,7 +16,7 @@
     "release": "changeset publish",
     "test": "pnpm test:clixion",
     "test:clixion": "pnpm -C ./packages/clixion test",
-    "prepare": "husky"
+    "prepare": "husky && gitmoji -i"
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
