@@ -11,7 +11,7 @@ jobs:
       matrix:
         os: [ubuntu-latest]
         experimental: [false]
-    name: 👷 Clixion CI on Node using PNPM under ${{ matrix.os }}
+    name: 👷 Clixion
 
     timeout-minutes: 60
 
@@ -23,5 +23,4 @@ jobs:
         uses: siguici/setup-js@v1
         with:
           runtime: node
-          pm: pnpm
           scripts: build,check,test
