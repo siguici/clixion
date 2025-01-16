@@ -10,10 +10,8 @@ jobs:
       fail-fast: true
       matrix:
         os: [ubuntu-latest]
-        node: [22]
-        pnpm: [9]
         experimental: [false]
-    name: 👷 Clixion CI on Node-${{ matrix.node }} under ${{ matrix.os }}
+    name: 👷 Clixion CI on Node using PNPM under ${{ matrix.os }}
 
     timeout-minutes: 60
 
@@ -21,15 +19,9 @@ jobs:
       - name: 🚚 Get latest code
         uses: actions/checkout@v4
 
-      - name: 🐳 Setup Node
-        uses: actions/setup-node@v4
+      - name: ⚡️ Setup JS
+        uses: siguici/setup-js@v1
         with:
-          node-version: ${{ matrix.node }}
-
-      - name: ⚡️ Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: ${{ matrix.pnpm }}
-
-      - name: ✅ Install dependencies, check code & run unit tests
-        run: make test
+          runtime: node
+          pm: pnpm
+          scripts: build,check,test
