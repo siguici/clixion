@@ -2,7 +2,6 @@
   "name": "clixion-monorepo",
   "type": "module",
   "version": "0.0.0",
-  "workspaces": ["packages/*"],
   "scripts": {
     "build": "pnpm build:clixion",
     "build:clixion": "pnpm -C ./packages/clixion build",
