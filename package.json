@@ -22,7 +22,7 @@
     "@changesets/cli": "^2.28.1",
     "gitmoji-cli": "^9.5.0",
     "husky": "^9.1.7",
-    "pkg-pr-new": "^0.0.40"
+    "pkg-pr-new": "^0.0.42"
   },
   "peerDependencies": {
     "typescript": "^5.7.2"
