@@ -1,7 +1,5 @@
-import { statSync } from 'node:fs';
-import { pathExistsSync } from 'fs-extra/esm';
+import type { Definition, Program } from '.';
 import { isBoolean, isNumber, isString } from './console';
-import type { Definition, Program } from './core';
 
 export class ProgramTester<
   T extends Definition,
@@ -153,25 +151,5 @@ export class ResultTester {
 
   isUnknown(): boolean {
     return ![0, 1, 2].includes(this.result);
-  }
-}
-
-export class PathTester {
-  constructor(readonly path: string) {}
-
-  isFile(): boolean {
-    return statSync(this.path).isFile();
-  }
-
-  isDir(): boolean {
-    return statSync(this.path).isDirectory();
-  }
-
-  isSymbolicLink(): boolean {
-    return statSync(this.path).isSymbolicLink();
-  }
-
-  exists(): boolean {
-    return pathExistsSync(this.path);
   }
 }

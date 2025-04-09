@@ -1,4 +1,4 @@
-import { Program } from '../src/core';
+import { Program } from '../src';
 
 export class Application extends Program<{
   name?: string;

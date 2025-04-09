@@ -2,7 +2,6 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path, { join, resolve, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import pm from './pm';
 
 export const __filename = getModuleFilename();
 export const __dirname = path.dirname(__filename);
@@ -57,46 +56,6 @@ export const clearDir = async (dir: string) => {
   );
 };
 
-function fileGetContents(file: string): string {
-  if (!fs.existsSync(file)) {
-    throw new Error(`File ${file} not found`);
-  }
-  return fs.readFileSync(file, { encoding: 'utf8' }).toString();
-}
-
-function filePutContents(file: string, contents: string) {
-  return fs.writeFileSync(file, contents, { encoding: 'utf8' });
-}
-
-function fileReplaceContents(
-  file: string,
-  search: string | RegExp,
-  replace: string
-) {
-  let contents = fileGetContents(file);
-  contents = contents.replace(search, replace);
-  filePutContents(file, contents);
-}
-
-export function getPackageJsonPath(dir = __dirname): string {
-  return join(dir, 'package.json');
-}
-
-function packageJsonReplace(
-  dir: string,
-  search: string | RegExp,
-  replace: string
-) {
-  fileReplaceContents(getPackageJsonPath(dir), search, replace);
-}
-
-export function replacePackageJsonRunCommand(dir: string) {
-  packageJsonReplace(dir, /npm run/g, pm.runCommand());
-}
-
-const npmPackageNamePattern =
-  /^(?:(?:@[a-z0-9-*~][a-z0-9-*._~]*\/)?[a-z0-9-~][a-z0-9-._~]*)$/;
-
 export function sanitizePackageName(name: string): string {
   name = name
     .trim()
@@ -117,36 +76,4 @@ export function sanitizePackageName(name: string): string {
   name = name.toLowerCase();
 
   return name;
-}
-
-function isValidPackageName(name: string): boolean {
-  return npmPackageNamePattern.test(name);
-}
-
-function validatePackageName(name: string): string {
-  name = sanitizePackageName(name);
-
-  if (!isValidPackageName(name)) {
-    throw new Error(`Invalid package name: ${name}`);
-  }
-
-  return name;
-}
-
-export function getPackageJson(dir: string): Record<string, any> {
-  const packageJsonPath = getPackageJsonPath(dir);
-
-  return JSON.parse(fileGetContents(packageJsonPath));
-}
-
-export function setPackageJson(dir: string, json: Record<string, any>) {
-  filePutContents(getPackageJsonPath(dir), JSON.stringify(json, null, 2));
-}
-
-export function updatePackageName(newName: string, dir = __dirname): void {
-  const cleanedName = validatePackageName(newName);
-  const packageJson = getPackageJson(dir);
-
-  packageJson.name = cleanedName;
-  setPackageJson(dir, packageJson);
 }
